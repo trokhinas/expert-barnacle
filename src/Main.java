@@ -8,7 +8,7 @@ import java.io.FileNotFoundException;
 public class Main {
 
     public static void main(String[] args) {
-        DataParser dp = new DataParser("C:\\Users\\toxat\\IdeaProjects\\VM2\\src\\input\\InputSquare");
+        DataParser dp = new DataParser("D:\\Другое\\VM2\\src\\input\\InputSquare");
         try {
             dp.readFile();
         } catch (FileNotFoundException e) {

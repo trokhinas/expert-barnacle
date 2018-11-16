@@ -46,7 +46,7 @@ public class Interpolation {
 
     public void calculate() {
         int n = N - 1;
-        if (N <= 3) {
+        if (N <= 2) {
             try {
                 throw new NLessThanTwoError();
             } catch (NLessThanTwoError nLessThanTwoError) {
@@ -83,7 +83,7 @@ public class Interpolation {
 
         splineD = new ArrayList<>(N - 1);
         for (int i = 0; i < N - 1; i++) {
-            splineD.add((CC.get(i + 1) - CC.get(i)) * h(i + 1));
+            splineD.add((CC.get(i + 1) - CC.get(i)) / h(i + 1));
         }
 
         splineB = new ArrayList<>(N - 1);
@@ -115,7 +115,7 @@ public class Interpolation {
                 break;
         }
 
-        System.out.println("i = " + i + " " + XX + " < " + X.get(i));
+        System.out.println("i = " + i + " " + XX + " <= " + X.get(i));
         double y = splineA.get(i - 1) + splineB.get(i - 1) * (XX - X.get(i)) +
                 splineC.get(i - 1) * Math.pow(XX - X.get(i), 2) +
                 splineD.get(i - 1) * Math.pow(XX - X.get(i), 3);
@@ -155,8 +155,8 @@ public class Interpolation {
     }
     private void solveMatrix() {
 
-        mu = new ArrayList<>(N);
-        nu = new ArrayList<>(N);
+        mu = new ArrayList<>(N - 1);
+        nu = new ArrayList<>(N - 1);
         mu.add(-VectorB.get(0) / VectorC.get(0));
         nu.add(VectorF.get(0) / VectorC.get(0));
         for (int i = 1; i < N - 1; i++) {
