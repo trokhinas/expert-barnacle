@@ -5,4 +5,9 @@ public class VectorXError extends SplineError{
     public int getCode() {
         return 2;
     }
+
+    @Override
+    public String getMessage() {
+        return "Вектор Х не упорядочен!";
+    }
 }

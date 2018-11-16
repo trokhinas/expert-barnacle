@@ -1,9 +1,17 @@
-import errors.NLessThanTwoError;
+import errors.ErrorPrinter;
+import errors.NLessThanThreeError;
+import errors.SplineError;
 
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Interpolation {
+
+    private final String output = "D:\\Другое\\VM2\\src\\output\\Output";
+    private final int SUCCESS = 0;
+
     private List<Double> X;
     private List<Double> Y;
     private double A;
@@ -44,20 +52,28 @@ public class Interpolation {
                 dataParser.getXX());
     }
 
-    public void calculate() {
+    public void startAlgorithm(){
+        try {
+            calculate();
+        } catch (SplineError e) {
+
+            try {ErrorPrinter.print(e);}
+            catch (FileNotFoundException e1)
+            {e1.printStackTrace();}
+
+            System.exit(e.getCode());
+        }
+    }
+    private void calculate() throws NLessThanThreeError {
         int n = N - 1;
         if (N <= 2) {
-            try {
-                throw new NLessThanTwoError();
-            } catch (NLessThanTwoError nLessThanTwoError) {
-                nLessThanTwoError.printStackTrace();
-                System.exit(nLessThanTwoError.getCode());
-            }
+            throw new NLessThanThreeError();
         }
 
         calculateH();   //считаем все h
         calculateMatrix();
         solveMatrix();
+        calculateSplines();
 
         System.out.print("h: ");
         print(h);
@@ -75,30 +91,6 @@ public class Interpolation {
         print(nu);
         System.out.print("CC: ");
         print(CC);
-
-        splineA = new ArrayList<>(N - 1);
-        for (int i = 0; i < N - 1; i++) {
-            splineA.add(Y.get(i + 1));
-        }
-
-        splineD = new ArrayList<>(N - 1);
-        for (int i = 0; i < N - 1; i++) {
-            splineD.add((CC.get(i + 1) - CC.get(i)) / h(i + 1));
-        }
-
-        splineB = new ArrayList<>(N - 1);
-        for (int i = 0 ; i < N - 1 ; i ++) {
-            double first = h(i + 1) / 2 * CC.get(i + 1);
-            double second = h(i + 1) * h(i + 1) / 6 * splineD.get(i);
-            double third = (Y.get(i + 1) - Y.get(i)) / h(i + 1);
-            splineB.add(first - second + third);
-        }
-
-        splineC = new ArrayList<>(N - 1);
-        for(int i = 0 ; i < N - 1 ; i ++) {
-            splineC.add(CC.get(i + 1));
-        }
-
         System.out.print("splineA: ");
         print(splineA);
         System.out.print("splineB: ");
@@ -115,12 +107,16 @@ public class Interpolation {
                 break;
         }
 
-        System.out.println("i = " + i + " " + XX + " <= " + X.get(i));
-        double y = splineA.get(i - 1) + splineB.get(i - 1) * (XX - X.get(i)) +
-                splineC.get(i - 1) * Math.pow(XX - X.get(i), 2) +
-                splineD.get(i - 1) * Math.pow(XX - X.get(i), 3);
-        System.out.println(y);
-
+        try {
+            PrintStream ps = new PrintStream(output);
+            double y = splineA.get(i - 1) + splineB.get(i - 1) * (XX - X.get(i)) +
+                    splineC.get(i - 1) * Math.pow(XX - X.get(i), 2) / 2 +
+                    splineD.get(i - 1) * Math.pow(XX - X.get(i), 3) / 6;
+            ps.println("Код ошибки " + SUCCESS + ".");
+            ps.println("Значение функции в точке " + XX + ": " + y);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     private void calculateMatrix() {
@@ -169,18 +165,13 @@ public class Interpolation {
         c[N - 1] = (VectorF.get(N - 1) - VectorA.get(N - 2) * nu.get(N - 2))
                 / (VectorA.get(N - 2) * mu.get(N - 2) + VectorC.get(N - 1));
         for (int i = N - 2; i >= 0; i--) {
-            c[i] = mu.get(i) * c[i + 1] - nu.get(i);
+            c[i] = mu.get(i) * c[i + 1] + nu.get(i);
         }
 
         CC = new ArrayList<>();
         for (double aC : c) {
             CC.add(aC);
         }
-    }
-    private double h(int index) {
-        if (index >= 1)
-            return h.get(index - 1);
-        return 0;
     }
     private void calculateH() {
 
@@ -190,6 +181,41 @@ public class Interpolation {
             h.add(X.get(i) - X.get(i - 1));
         }
     }
+    private void calculateSplines(){
+        calculateA();
+        calculateD();
+        calculateB();
+        calculateC();
+    }
+
+    private void calculateC() {
+        splineC = new ArrayList<>(N - 1);
+        for(int i = 0 ; i < N - 1 ; i ++) {
+            splineC.add(CC.get(i + 1));
+        }
+    }
+    private void calculateB() {
+        splineB = new ArrayList<>(N - 1);
+        for (int i = 0 ; i < N - 1 ; i ++) {
+            double first = h(i + 1) / 2 * CC.get(i + 1);
+            double second = h(i + 1) * h(i + 1) / 6 * splineD.get(i);
+            double third = (Y.get(i + 1) - Y.get(i)) / h(i + 1);
+            splineB.add(first - second + third);
+        }
+    }
+    private void calculateD() {
+        splineD = new ArrayList<>(N - 1);
+        for (int i = 0; i < N - 1; i++) {
+            splineD.add((CC.get(i + 1) - CC.get(i)) / h(i + 1));
+        }
+    }
+    private void calculateA() {
+        splineA = new ArrayList<>(N - 1);
+        for (int i = 0; i < N - 1; i++) {
+            splineA.add(Y.get(i + 1));
+        }
+    }
+
     private double F(int i){
         if(i < 1 || i > N - 1)
             throw new IllegalArgumentException();
@@ -202,9 +228,11 @@ public class Interpolation {
 
         return left - right;
     }
-
-
-
+    private double h(int index) {
+        if (index >= 1)
+            return h.get(index - 1);
+        return 0;
+    }
     private void print(List a) {
         for (var b : a
                 ) {

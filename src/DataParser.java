@@ -1,3 +1,4 @@
+import errors.ErrorPrinter;
 import errors.IncludeError;
 import errors.VectorXError;
 
@@ -23,8 +24,46 @@ public class DataParser {
         file = filename;
     }
 
-    public void readFile() throws FileNotFoundException, VectorXError, IncludeError {
-        Scanner scanner = new Scanner(new File(file)).useDelimiter("\n");
+    public void readFile(){
+
+        Scanner scanner = null;
+        try {
+            scanner = new Scanner(new File(file)).useDelimiter("\n");
+            parse(scanner);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        if(!Validator.isOrdered(X)) try {
+            throw new VectorXError();
+        } catch (VectorXError vectorXError) {
+            try {
+                ErrorPrinter.print(vectorXError);
+                System.exit(vectorXError.getCode());
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (!Validator.isIncluded(X, XX)) try {
+            throw new IncludeError();
+        } catch (IncludeError includeError) {
+            try {
+                ErrorPrinter.print(includeError);
+                System.exit(includeError.getCode());
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if(N != X.size() || N != Y.size()) {
+            System.out.println("Количество точек, не совпадает с заявленным N ");
+            System.exit(1);
+        }
+    }
+
+
+    private void parse(Scanner scanner) {
         while (scanner.hasNext()){
             String source = scanner.next();
             if(source.contains("X:")){
@@ -50,15 +89,7 @@ public class DataParser {
                 XX = Double.parseDouble(source);
             }
         }
-
-        if(!Validator.isOrdered(X)) throw new VectorXError();
-        if (!Validator.isIncluded(X, XX))  throw new IncludeError();
-        if(N != X.size() || N != Y.size()) {
-            System.out.println("Количество точек, не совпадает с заявленным N ");
-            System.exit(1);
-        }
     }
-
     private void parseY(String source) {
         source = source.substring(source.indexOf(":") + 1);
         Scanner sourceScanner = new Scanner(source).useDelimiter(" ");

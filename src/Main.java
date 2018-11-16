@@ -1,27 +1,19 @@
-import errors.IncludeError;
-import errors.NLessThanTwoError;
-import errors.SplineError;
-import errors.VectorXError;
+import errors.*;
 
+import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 
 public class Main {
 
     public static void main(String[] args) {
-        DataParser dp = new DataParser("D:\\Другое\\VM2\\src\\input\\InputSquare");
-        try {
-            dp.readFile();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            System.exit(1);
-        } catch (SplineError e) {
-            e.printStackTrace();
-            System.exit(e.getCode());
-        }
 
+        DataParser dp = new DataParser("D:\\Другое\\VM2\\src\\input\\NLessThanThreeError");
+        dp.readFile();
         dp.print();
 
         Interpolation interpolation = new Interpolation(dp);
-        interpolation.calculate();
+        interpolation.startAlgorithm();
     }
 }
