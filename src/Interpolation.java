@@ -141,8 +141,8 @@ public class Interpolation {
                 if (i == N - 1) {
                     VectorA.add(1d);
                     VectorC.add(2d);
-                    double left = 6 / h(h.size());
-                    double right = B - ((Y.get(N - 1) - Y.get(N - 2)) / h(h.size()));
+                    double left = 6 / h(N - 2);
+                    double right = B - ((Y.get(N - 1) - Y.get(N - 2)) / h(N - 2));
                     VectorF.add(left * right);
                 }
             } else {
@@ -157,11 +157,11 @@ public class Interpolation {
 
         mu = new ArrayList<>(N);
         nu = new ArrayList<>(N);
-        mu.add(VectorB.get(0) / VectorC.get(0));
+        mu.add(-VectorB.get(0) / VectorC.get(0));
         nu.add(VectorF.get(0) / VectorC.get(0));
-        for (int i = 1; i < N; i++) {
+        for (int i = 1; i < N - 1; i++) {
             double Di = VectorC.get(i) + VectorA.get(i - 1) * mu.get(i - 1);
-            mu.add((-VectorB.get(i - 1) / Di));
+            mu.add((-VectorB.get(i) / Di));
             nu.add((VectorF.get(i) - VectorA.get(i - 1) * nu.get(i - 1)) / Di);
         }
 
