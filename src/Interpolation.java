@@ -117,8 +117,8 @@ public class Interpolation {
 
         System.out.println("i = " + i + " " + XX + " <= " + X.get(i));
         double y = splineA.get(i - 1) + splineB.get(i - 1) * (XX - X.get(i)) +
-                splineC.get(i - 1) * Math.pow(XX - X.get(i), 2) +
-                splineD.get(i - 1) * Math.pow(XX - X.get(i), 3);
+                splineC.get(i - 1) * Math.pow(XX - X.get(i), 2) / 2 +
+                splineD.get(i - 1) * Math.pow(XX - X.get(i), 3) / 6;
         System.out.println(y);
 
     }
@@ -169,7 +169,7 @@ public class Interpolation {
         c[N - 1] = (VectorF.get(N - 1) - VectorA.get(N - 2) * nu.get(N - 2))
                 / (VectorA.get(N - 2) * mu.get(N - 2) + VectorC.get(N - 1));
         for (int i = N - 2; i >= 0; i--) {
-            c[i] = mu.get(i) * c[i + 1] - nu.get(i);
+            c[i] = mu.get(i) * c[i + 1] + nu.get(i);
         }
 
         CC = new ArrayList<>();
