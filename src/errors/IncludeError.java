@@ -8,6 +8,6 @@ public class IncludeError extends SplineError{
 
     @Override
     public String getMessage() {
-        return "Значение ХХ не включено в вектор";
+        return "Значение ХХ не включено в вектор!";
     }
 }
