@@ -4,7 +4,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        DataParser dp = new DataParser("D:\\Другое\\VM2\\src\\input\\NLessThanThreeError");
+        DataParser dp = new DataParser("D:\\Другое\\VM2\\src\\input\\Exp");
         dp.readFile();
         dp.print();
 

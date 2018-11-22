@@ -66,7 +66,7 @@ public class Interpolation {
     }
     private void calculate() throws NLessThanThreeError {
         int n = N - 1;
-        if (N <= 2) {
+        if (N < 3) {
             throw new NLessThanThreeError();
         }
 
@@ -109,11 +109,9 @@ public class Interpolation {
 
         try {
             PrintStream ps = new PrintStream(output);
-            double y = splineA.get(i - 1) + splineB.get(i - 1) * (XX - X.get(i)) +
-                    splineC.get(i - 1) * Math.pow(XX - X.get(i), 2) / 2 +
-                    splineD.get(i - 1) * Math.pow(XX - X.get(i), 3) / 6;
+            double y = value(i);
             ps.println("Код ошибки " + SUCCESS + ".");
-            ps.println("Значение функции в точке " + XX + ": " + y);
+            ps.println("Значение второй производной в точке " + XX + ": " + y);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -233,6 +231,12 @@ public class Interpolation {
             return h.get(index - 1);
         return 0;
     }
+    private double value(int i){
+        double y = splineC.get(i - 1)  +
+                splineD.get(i - 1) * (XX - X.get(i));
+        return y;
+    }
+
     private void print(List a) {
         for (var b : a
                 ) {
